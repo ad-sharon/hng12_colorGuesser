@@ -5,8 +5,6 @@ import Score from "./Score";
 import StatusCorrect from "./StatusCorrect";
 import StatusWrong from "./StatusWrong";
 import ResetGame from "./ResetGame";
-import correctSoundPath from "../assets/correctSound.mp3";
-import wrongSoundPath from "../assets/wrongSound.mp3";
 
 const getColors = () => {
   const choices = ["red", "green", "orange", "purple", "black", "blue"];
@@ -14,8 +12,6 @@ const getColors = () => {
 };
 
 const ColorGuesser = () => {
-  const correctSound = new Audio(correctSoundPath);
-  const wrongSound = new Audio(wrongSoundPath);
   const [colors, setColors] = useState(getColors());
   const [target, setTarget] = useState(
     colors[Math.floor(Math.random() * colors.length)]
@@ -33,7 +29,6 @@ const ColorGuesser = () => {
 
   const handleUserGuess = (color) => {
     if (color === target) {
-      correctSound.play();
       setScore((prevScore) => prevScore + 1);
       setIsCorrect(true);
       setShowCorrect(true);
@@ -43,7 +38,6 @@ const ColorGuesser = () => {
       setShowUserOptions(false);
       setResetOpacity(true);
     } else {
-      wrongSound.play();
       setIsCorrect(false);
       setShowWrong(true);
       setShowCorrect(false);
