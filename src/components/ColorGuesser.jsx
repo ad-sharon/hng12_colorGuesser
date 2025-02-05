@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import UserOptions from "./UserOptions";
 import TargetBox from "./TargetBox";
+import UserOptions from "./UserOptions";
 import Score from "./Score";
+import StatusCorrect from "./StatusCorrect";
+import StatusWrong from "./StatusWrong";
 import ResetGame from "./ResetGame";
 
 const getColors = () => {
@@ -10,141 +12,89 @@ const getColors = () => {
 };
 
 const ColorGuesser = () => {
+  const correctSound = new Audio("/correctSound.mp3");
+  const wrongSound = new Audio("/wrongSound.mp3");
+
   const [colors, setColors] = useState(getColors());
   const [target, setTarget] = useState(
     colors[Math.floor(Math.random() * colors.length)]
   );
-  const [userFeedback, setUserFeedback] = useState({ text: "", color: "" });
-  const [isCorrect, setIsCorrect] = useState("");
-  const [showCorrect, setShowCorrect] = useState("");
-  const [showWrong, setShowWrong] = useState("");
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [showCorrect, setShowCorrect] = useState(false);
+  const [showWrong, setShowWrong] = useState(false);
   const [score, setScore] = useState(0);
+  const [showUserOptions, setShowUserOptions] = useState(false);
+  const [resetOpacity, setResetOpacity] = useState(false);
 
-  // function to handle user guesses
+  const TargetDisappeared = () => {
+    setShowUserOptions(true);
+  };
+
   const handleUserGuess = (color) => {
     if (color === target) {
-      setScore(score + 1);
-      setUserFeedback({
-        text: "🎉 Correct! You're killing it! 🎉",
-        color: "green",
-      });
+      setScore((prevScore) => prevScore + 1);
+      correctSound.play();
       setIsCorrect(true);
       setShowCorrect(true);
-      setShowWrong("");
+      setShowWrong(false);
       setColors(getColors());
       setTarget(colors[Math.floor(Math.random() * colors.length)]);
+      setShowUserOptions(false);
+      setResetOpacity(true);
     } else {
-      setUserFeedback({
-        text: "Oops! You failed.Click the New Game button below to try again.",
-        color: "red",
-      });
+      wrongSound.play();
       setIsCorrect(false);
       setShowWrong(true);
-      setShowCorrect("");
+      setShowCorrect(false);
     }
   };
 
   useEffect(() => {
-    if (isCorrect !== "") {
-      setTimeout(() => {
-        setShowCorrect("");
-        setIsCorrect("");
+    if (isCorrect) {
+      const timeoutId = setTimeout(() => {
+        setShowCorrect(false);
+        setIsCorrect(false);
+        setResetOpacity(false);
       }, 1000);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [isCorrect]);
 
-  // function to start a new round
   const resetGame = () => {
-    const newColors = getColors();
-    setColors(newColors);
-    setTarget(newColors[Math.floor(Math.random() * newColors.length)]);
-    setUserFeedback({ text: "", color: "" });
-    setScore(0);
-    setShowWrong("");
+    window.location.reload();
   };
 
   return (
-    <div className="container" style={{ position: "absolute" }}>
+    <section className="container">
       <h1>COLOR GUESSING GAME</h1>
       <p data-testid="gameInstructions">
-        Welcome to the color guessing game. Try your best to guess the correct
-        color. Good luck!!!
+        Welcome to the color guessing game! Try your best to guess the same
+        color as the target. Good luck!!!
       </p>
-      <div
-        style={{
-          display: "flex",
-          marginTop: 50,
-          gap: "30%",
-          margin: 10,
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-        }}
-      >
-        <TargetBox color={target} />
+
+      <section className="target_score">
+        <TargetBox
+          color={target}
+          resetOpacity={resetOpacity}
+          onTargetDisappear={TargetDisappeared}
+        />
         <Score score={score} />
-      </div>
-      <h3>Make your choice from the buttons below</h3>
-      <UserOptions userOptions={colors} handleGuess={handleUserGuess} />
+      </section>
 
-      {/* Correct answer animation */}
-      {showCorrect && (
-        <h2
-          className="floatingCorrect"
-          data-testid="gameStatus"
-          style={{
-            position: "absolute",
-            zIndex: 99,
-            margin: "auto",
-            border: "1px solid",
-            opacity: 1,
-            padding: "100px",
-            borderRadius: "10px",
-            backgroundColor: "#f7f7f7",
-            color: userFeedback.color,
-          }}
-        >
-          {userFeedback.text}
-        </h2>
-      )}
-
-      {/* Wrong answer animation */}
-      {showWrong && (
+      {showUserOptions && (
         <>
-          <div
-            data-testid="gameStatus"
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100vh",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              zIndex: 98,
-            }}
-          ></div>
-
-          <h2
-            className="floatingWrong"
-            data-testid="gameStatus"
-            style={{
-              zIndex: 99,
-              border: "1px solid",
-              opacity: 1,
-              paddingTop: "50px",
-              paddingBottom: "50px",
-              paddingInline: "20px",
-              borderRadius: "10px",
-              backgroundColor: "#f7f7f7",
-              color: userFeedback.color,
-            }}
-          >
-            {userFeedback.text} <br />
-            <ResetGame resetGame={resetGame} />
-          </h2>
+          <h3>Make your choice from the buttons below</h3>
+          <UserOptions userOptions={colors} handleGuess={handleUserGuess} />
         </>
       )}
-    </div>
+
+      {showCorrect && <StatusCorrect />}
+      {showWrong && <StatusWrong onNewGame={resetGame} />}
+
+      {/* New Game Button */}
+      <ResetGame onClickHandler={resetGame} />
+    </section>
   );
 };
 

@@ -1,13 +1,13 @@
 const UserOptions = ({ userOptions, handleGuess }) => {
   return (
-    <div className="contianer">
+    <div>
       {userOptions.map((color) => (
         <button
           className="userOptions"
           data-testid="colorOption"
           key={color}
           style={{
-            width: "200px",
+            width: "150px",
             height: "100px",
             margin: "10px",
             cursor: "pointer",
@@ -20,11 +20,6 @@ const UserOptions = ({ userOptions, handleGuess }) => {
       ))}
     </div>
   );
-};
-
-UserOptions.defaultProps = {
-  userOptions: [],
-  handleGuess: () => {},
 };
 
 export default UserOptions;
