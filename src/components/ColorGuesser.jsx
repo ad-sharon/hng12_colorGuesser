@@ -12,8 +12,8 @@ const getColors = () => {
 };
 
 const ColorGuesser = () => {
-  const correctSound = new Audio("/correctSound.mp3");
-  const wrongSound = new Audio("/wrongSound.mp3");
+  const correctSound = new Audio("${process.env.PUBLIC_URL}/correctSound.mp3");
+  const wrongSound = new Audio("${process.env.PUBLIC_URL}/wrongSound.mp3");
 
   const [colors, setColors] = useState(getColors());
   const [target, setTarget] = useState(
