@@ -33,8 +33,8 @@ const ColorGuesser = () => {
 
   const handleUserGuess = (color) => {
     if (color === target) {
-      setScore((prevScore) => prevScore + 1);
       correctSound.play();
+      setScore((prevScore) => prevScore + 1);
       setIsCorrect(true);
       setShowCorrect(true);
       setShowWrong(false);
@@ -63,14 +63,7 @@ const ColorGuesser = () => {
   }, [isCorrect]);
 
   const resetGame = () => {
-    setScore(0);
-    setColors(getColors());
-    setTarget(colors[Math.floor(Math.random() * colors.length)]);
-    setIsCorrect(false);
-    setShowCorrect(false);
-    setShowWrong(false);
-    setShowUserOptions(false);
-    setResetOpacity(false);
+    window.location.reload();
   };
 
   return (
